@@ -3,6 +3,7 @@
 
 #define LIGHT_MODE_PIN 2
 #define SYNC_MODE_TIME 3100
+#define STARTUP_DELAY  1200
 #define CHANGE_COLOR_TIME 50
 
 typedef enum
@@ -29,12 +30,20 @@ void setup()
 {
     uint8_t ubCount = 0;
 
+    Serial.begin(115200);
+
+    while(!Serial)
+    {
+        /* Wait for Serial to be ready */
+    }
+
     for(ubCount = 0; ubCount < NumControllers; ubCount++)
     {
         pinMode(kubCntlrPins[ubCount], OUTPUT);
         digitalWrite(kubCntlrPins[ubCount], HIGH);
     }
 
+    delay(STARTUP_DELAY);
     vSetSyncMode(kubCntlrPins[Cntlr2]);
 
     LightMode.begin();
@@ -87,4 +96,20 @@ void vChangeColorMode(uint8_t ubControllerPin)
     delay(CHANGE_COLOR_TIME);
 
     digitalWrite(ubControllerPin, HIGH);
+}
+
+void vHandleSerialCmds(void)
+{
+    uint8_t ubNumBytes = 0;
+
+    ubNumBytes = Serial.available();
+
+    if(ubNumBytes > 0)
+    {
+        char * pszCommand = (char*)malloc(ubNumBytes);
+
+        Serial.readBytes(pszCommand, ubNumBytes);
+
+        
+    }
 }
